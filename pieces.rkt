@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/base
 
 (require math/matrix)
 
@@ -37,6 +37,14 @@
     [(4) 9]
     [(5) 255]
     [else "FAIL"]))
+
+(define (getShortestTrajectory startX startY goalX goalY board)
+  (define startOffsetX (- startX 8))
+  (define startOffsetY (- startY 8))
+  (define goalOffsetX (- goalX 8))
+  (define goalOffsetY (- goalY 8))
+
+  startOffsetX)
 
 (define pawnMoves
   (matrix [[7 7 7 7 7 7 7 7 7 7 7 7 7 7 7]
@@ -149,3 +157,65 @@
     [(4) queenMoves]
     [(5) kingMoves]
     [else "FAIL"]))
+
+; A*shiftLeftOrDown will shift A left
+; shiftLeftOrDown*A will shift A down
+(define shiftLeftOrDown
+  (matrix [[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+           [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+           [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+           [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+           [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+           [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+           [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]]))
+
+; A*shiftRightOrUp will shift A right
+; shiftRightOrUp*A will shift A up
+(define shiftRightOrUp
+  (matrix [[0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]
+           [0 0 1 0 0 0 0 0 0 0 0 0 0 0 0]
+           [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 1 0 0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 1 0 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 1 0 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0 1 0 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0 0 1 0 0 0 0]
+           [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0]
+           [0 0 0 0 0 0 0 0 0 0 0 0 1 0 0]
+           [0 0 0 0 0 0 0 0 0 0 0 0 0 1 0]
+           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 1]
+           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]))
+
+; Shift the matrix up x row
+(define (shiftMatrixUp m x)
+  (if (equal? x 0)
+      m
+      (matrix* shiftRightOrUp (shiftMatrixUp m (- x 1)))))
+
+; Shift the matrix down x rows
+(define (shiftMatrixDown m x)
+  (if (equal? x 0)
+      m
+      (matrix* shiftLeftOrDown (shiftMatrixDown m (- x 1)))))
+
+; Shift the matrix right x columns
+(define (shiftMatrixRight m x)
+  (if (equal? x 0)
+      m
+      (matrix* (shiftMatrixRight m (- x 1)) shiftRightOrUp)))
+
+; Shift the matrix left x columns
+(define (shiftMatrixLeft m x)
+  (if (equal? x 0)
+      m
+      (matrix* (shiftMatrixLeft m (- x 1)) shiftLeftOrDown)))
