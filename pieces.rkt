@@ -44,7 +44,27 @@
   (define goalOffsetX (- goalX 8))
   (define goalOffsetY (- goalY 8))
 
-  startOffsetX)
+  ; Create the shifted start matrix
+  (define startMatrix
+    (if (> startOffsetY 0)
+        (shiftMatrixUp (if (> startOffsetX 0)
+                           (shiftMatrixRight kingMoves startOffsetX)
+                           (shiftMatrixLeft kingMoves (- 0 startOffsetX))) startOffsetY)
+        (shiftMatrixDown (if (> startOffsetX 0)
+                             (shiftMatrixRight kingMoves startOffsetX)
+                             (shiftMatrixLeft kingMoves (- 0 startOffsetX))) (- 0 startOffsetY))))
+
+  ; Create the shifted goal matrix
+  (define goalMatrix
+    (if (> goalOffsetY 0)
+        (shiftMatrixUp (if (> goalOffsetX 0)
+                           (shiftMatrixRight kingMoves goalOffsetX)
+                           (shiftMatrixLeft kingMoves (- 0 goalOffsetX))) goalOffsetY)
+        (shiftMatrixDown (if (> startOffsetX 0)
+                             (shiftMatrixRight kingMoves goalOffsetX)
+                             (shiftMatrixLeft kingMoves (- 0 goalOffsetX))) (- 0 goalOffsetY))))
+
+  (matrix+ startMatrix goalMatrix))
 
 (define pawnMoves
   (matrix [[7 7 7 7 7 7 7 7 7 7 7 7 7 7 7]
