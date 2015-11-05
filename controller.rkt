@@ -16,7 +16,7 @@
                      [board (new board%)]))
     
     (define game (new game%
-                      [gametype "Default"]))
+                      [gametype "RRetiEndgame"]))
 
     (define/public (start)
       ; Initialize the game

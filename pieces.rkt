@@ -1,6 +1,9 @@
 #lang racket/base
 
-(require math/matrix "moves.rkt" "logging.rkt")
+(require math/matrix
+         racket/fixnum
+         "moves.rkt"
+         "logging.rkt")
 
 (provide PAWN ROOK KNIGHT BISHOP QUEEN KING getName getValue getMoves)
 
@@ -30,14 +33,38 @@
     [(5) 255]
     [else "FAIL"]))
 
-(define (getShortestTrajectory startX startY goalX goalY board)
+(define (convert-bitboard-to-x-y bitboard)
+  (define temp (/ (log bitboard) (log 2)))
+
+  (define x (+ 1 (modulo temp 8)))
+  (define y (+ 1 (floor (/ temp 8))))
+  
+  (vector
+   (if (fixnum? x) x (fl->fx x))
+   (if (fixnum? y) y (fl->fx y))))
+
+(define (get-shortest-trajectory startBoard goalBoard holesBoard pieceType)
+  (define start (convert-bitboard-to-x-y startBoard))
+  (logMessage "Start: " (vector-ref start 0) "," (vector-ref start 1))
+  (define goal (convert-bitboard-to-x-y goalBoard))
+  (logMessage "Goal: " (vector-ref goal 0) "," (vector-ref goal 1))
+  
+  (getShortestTrajectory (vector-ref start 0) (vector-ref start 1) (vector-ref goal 0) (vector-ref goal 1) holesBoard pieceType))
+
+(define (getShortestTrajectory startX startY goalX goalY board pieceType)
   (define startOffsetX (- startX 8))
   (define startOffsetY (- startY 8))
   (define goalOffsetX (- goalX 8))
   (define goalOffsetY (- goalY 8))
 
   ; TEMPORARY: define the piece we're looking at
-  (define pieceMoves knightMoves)
+  (define pieceMoves (case pieceType
+                       [(0) pawnMovesNorth]
+                       [(1) rookMoves]
+                       [(2) knightMoves]
+                       [(3) bishopMoves]
+                       [(4) queenMoves]
+                       [(5) kingMoves]))
 
   ; Create the shifted start matrix
   (define startMatrix
@@ -140,7 +167,7 @@
 (define (stripUnneeded m)
   (define min (matrix-min m))
   
-  (log "Minimum moves to goal: " min)
+  (logMessage "Minimum moves to goal: " min)
 
   (define processVector (matrix->vector m))
 
@@ -174,3 +201,4 @@
 
 ;(printMatrix 8 8 (getShortestTrajectory 1 8 8 6 0))
 ;(printMatrix 8 8 (stripUnneeded (getShortestTrajectory 1 8 8 8 0)))
+(printMatrix 8 8 (stripUnneeded (get-shortest-trajectory 128 1 0 KING)))
