@@ -1,14 +1,32 @@
 #lang racket
 
-(require "game.rkt")
+(require "game.rkt"
+         "gui.rkt"
+         "board.rkt")
 
-(provide chess-controller)
+(provide chess-controller%)
 
 (define chess-controller%
   (class object%
     (init)
 
+    (define gui (new gui%
+                     [width-in-chars 500]
+                     [height-in-chars 500]
+                     [board (new board%)]))
+    
     (define game (new game%
-                      [gametype "RRetiEndgame"]))
+                      [gametype "Default"]))
+
+    (define/public (start)
+      ; Initialize the game
+      (send game initializeBoards)
+
+      ; Initialize the GUI
+      (send gui update-board (send game get-board))
+      (send gui init))
+
+    (define/public (update)
+      '())
 
     (super-new)))

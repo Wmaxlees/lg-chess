@@ -2,13 +2,13 @@
 
 (require math/matrix)
 
-(provide printMatrix log)
+(provide printMatrix logMessage)
 
 ; Enable logging
 (define loggingEnabled #t)
 
 ; Log a message to the console
-(define (log . input)
+(define (logMessage . input)
   (if loggingEnabled
       (printLogging input)
       null))

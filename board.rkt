@@ -1,6 +1,19 @@
 #lang racket
 
-(provide board%)
+(provide board%
+         board-holes
+         white-pawn
+         white-rook
+         white-knight
+         white-bishop
+         white-queen
+         white-king
+         black-pawn
+         black-rook
+         black-knight
+         black-bishop
+         black-king
+         black-queen)
 
 (define board-holes 0)
 (define white-pawn 1)
