@@ -1,16 +1,8 @@
 #lang racket/base
 
-(require math/matrix)
+(require math/matrix "moves.rkt" "logging.rkt")
 
-(provide PAWN
-         ROOK
-         KNIGHT
-         BISHOP
-         QUEEN
-         KING
-         getName
-         getValue
-         getMoves)
+(provide PAWN ROOK KNIGHT BISHOP QUEEN KING getName getValue getMoves)
 
 (define PAWN 0)
 (define ROOK 1)
@@ -44,133 +36,37 @@
   (define goalOffsetX (- goalX 8))
   (define goalOffsetY (- goalY 8))
 
+  ; TEMPORARY: define the piece we're looking at
+  (define pieceMoves knightMoves)
+
   ; Create the shifted start matrix
   (define startMatrix
     (if (> startOffsetY 0)
         (shiftMatrixUp (if (> startOffsetX 0)
-                           (shiftMatrixRight kingMoves startOffsetX)
-                           (shiftMatrixLeft kingMoves (- 0 startOffsetX))) startOffsetY)
+                           (shiftMatrixRight pieceMoves startOffsetX)
+                           (shiftMatrixLeft pieceMoves (- 0 startOffsetX))) startOffsetY)
         (shiftMatrixDown (if (> startOffsetX 0)
-                             (shiftMatrixRight kingMoves startOffsetX)
-                             (shiftMatrixLeft kingMoves (- 0 startOffsetX))) (- 0 startOffsetY))))
+                             (shiftMatrixRight pieceMoves startOffsetX)
+                             (shiftMatrixLeft pieceMoves (- 0 startOffsetX))) (- 0 startOffsetY))))
 
   ; Create the shifted goal matrix
   (define goalMatrix
     (if (> goalOffsetY 0)
         (shiftMatrixUp (if (> goalOffsetX 0)
-                           (shiftMatrixRight kingMoves goalOffsetX)
-                           (shiftMatrixLeft kingMoves (- 0 goalOffsetX))) goalOffsetY)
+                           (shiftMatrixRight pieceMoves goalOffsetX)
+                           (shiftMatrixLeft pieceMoves (- 0 goalOffsetX))) goalOffsetY)
         (shiftMatrixDown (if (> startOffsetX 0)
-                             (shiftMatrixRight kingMoves goalOffsetX)
-                             (shiftMatrixLeft kingMoves (- 0 goalOffsetX))) (- 0 goalOffsetY))))
+                             (shiftMatrixRight pieceMoves goalOffsetX)
+                             (shiftMatrixLeft pieceMoves (- 0 goalOffsetX))) (- 0 goalOffsetY))))
 
-  (matrix+ startMatrix goalMatrix))
+  ;(printMatrix 8 8 startMatrix)
+  ;(printMatrix 8 8 goalMatrix)
 
-(define pawnMoves
-  (matrix [[7 7 7 7 7 7 7 7 7 7 7 7 7 7 7]
-           [0 6 6 6 6 6 6 6 6 6 6 6 6 6 0]
-           [0 0 5 5 5 5 5 5 5 5 5 5 5 0 0]
-           [0 0 0 4 4 4 4 4 4 4 4 4 0 0 0]
-           [0 0 0 0 3 3 3 3 3 3 3 0 0 0 0]
-           [0 0 0 0 0 2 2 2 2 2 0 0 0 0 0]
-           [0 0 0 0 0 0 1 1 1 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-           [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]))
-
-(define rookMoves
-  (matrix [[2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [1 1 1 1 1 1 1 2 1 1 1 1 1 1 1]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]
-           [2 2 2 2 2 2 2 1 2 2 2 2 2 2 2]]))
-
-(define knightMoves
-  (matrix [[6 5 4 5 4 5 4 5 4 5 4 5 4 5 6]
-           [5 4 5 4 3 4 3 4 3 4 3 4 5 4 5]
-           [4 5 4 3 4 3 4 3 4 3 4 3 4 5 4]
-           [5 4 3 4 3 2 3 2 3 2 3 4 3 4 5]
-           [4 3 4 3 2 3 2 3 2 3 2 3 4 3 4]
-           [5 4 3 2 3 4 1 2 1 4 3 2 3 4 5]
-           [4 3 4 3 2 1 2 3 2 1 2 3 4 3 4]
-           [5 4 3 2 3 2 3 2 3 2 3 2 3 4 5]
-           [4 3 4 3 2 1 2 3 2 1 2 3 4 3 4]
-           [5 4 3 2 3 4 1 2 1 4 3 2 3 4 5]
-           [4 3 4 3 2 3 2 3 2 3 2 3 4 3 4]
-           [5 4 3 4 3 2 3 2 3 2 3 4 3 4 5]
-           [4 5 4 3 4 3 4 3 4 3 4 3 4 5 4]
-           [5 4 5 4 3 4 3 4 3 4 3 4 5 4 5]
-           [6 5 4 5 4 5 4 5 4 5 4 5 4 5 6]]))
-
-(define bishopMoves
-  (matrix [[1 0 2 0 2 0 2 0 2 0 2 0 2 0 1]
-           [0 1 0 2 0 2 0 2 0 2 0 2 0 1 0]
-           [2 0 1 0 2 0 2 0 2 0 2 0 1 0 2]
-           [0 2 0 1 0 2 0 2 0 2 0 1 0 2 0]
-           [2 0 2 0 1 0 2 0 2 0 1 0 2 0 2]
-           [0 2 0 2 0 1 0 2 0 1 0 2 0 2 0]
-           [2 0 2 0 2 0 1 0 1 0 2 0 2 0 2]
-           [0 2 0 2 0 2 0 2 0 2 0 2 0 2 0]
-           [2 0 2 0 2 0 1 0 1 0 2 0 2 0 2]
-           [0 2 0 2 0 1 0 2 0 1 0 2 0 2 0]
-           [2 0 2 0 1 0 2 0 2 0 1 0 2 0 2]
-           [0 2 0 1 0 2 0 2 0 2 0 1 0 2 0]
-           [2 0 1 0 2 0 2 0 2 0 2 0 1 0 2]
-           [0 1 0 2 0 2 0 2 0 2 0 2 0 1 0]
-           [1 0 2 0 2 0 2 0 2 0 2 0 2 0 1]]))
-
-(define queenMoves
-  (matrix [[1 2 2 2 2 2 2 1 2 2 2 2 2 2 1]
-           [2 1 2 2 2 2 2 1 2 2 2 2 2 1 2]
-           [2 2 1 2 2 2 2 1 2 2 2 2 1 2 2]
-           [2 2 2 1 2 2 2 1 2 2 2 1 2 2 2]
-           [2 2 2 2 1 2 2 1 2 2 1 2 2 2 2]
-           [2 2 2 2 2 1 2 1 2 1 2 2 2 2 2]
-           [2 2 2 2 2 2 1 1 1 2 2 2 2 2 2]
-           [1 1 1 1 1 1 1 2 1 1 1 1 1 1 1]
-           [2 2 2 2 2 2 1 1 1 2 2 2 2 2 2]
-           [2 2 2 2 2 1 2 1 2 1 2 2 2 2 2]
-           [2 2 2 2 1 2 2 1 2 2 1 2 2 2 2]
-           [2 2 2 1 2 2 2 1 2 2 2 1 2 2 2]
-           [2 2 1 2 2 2 2 1 2 2 2 2 1 2 2]
-           [2 1 2 2 2 2 2 1 2 2 2 2 2 1 2]
-           [1 2 2 2 2 2 2 1 2 2 2 2 2 2 1]]))
-
-(define kingMoves
-  (matrix [[7 7 7 7 7 7 7 7 7 7 7 7 7 7 7]
-           [7 6 6 6 6 6 6 6 6 6 6 6 6 6 7]
-           [7 6 5 5 5 5 5 5 5 5 5 5 5 6 7]
-           [7 6 5 4 4 4 4 4 4 4 4 4 5 6 7]
-           [7 6 5 4 3 3 3 3 3 3 3 4 5 6 7]
-           [7 6 5 4 3 2 2 2 2 2 3 4 5 6 7]
-           [7 6 5 4 3 2 1 1 1 2 3 4 5 6 7]
-           [7 6 5 4 3 2 1 2 1 2 3 4 5 6 7]
-           [7 6 5 4 3 2 1 1 1 2 3 4 5 6 7]
-           [7 6 5 4 3 2 2 2 2 2 3 4 5 6 7]
-           [7 6 5 4 3 3 3 3 3 3 3 4 5 6 7]
-           [7 6 5 4 4 4 4 4 4 4 4 4 5 6 7]
-           [7 6 5 5 5 5 5 5 5 5 5 5 5 6 7]
-           [7 6 6 6 6 6 6 6 6 6 6 6 6 6 7]
-           [7 7 7 7 7 7 7 7 7 7 7 7 7 7 7]]))
+  (shrinkToBoard (matrix+ startMatrix goalMatrix)))
 
 (define (getMoves piece)
   (case piece
-    [(0) pawnMoves]
+    [(0) pawnMovesNorth]
     [(1) rookMoves]
     [(2) knightMoves]
     [(3) bishopMoves]
@@ -239,3 +135,42 @@
   (if (equal? x 0)
       m
       (matrix* (shiftMatrixLeft m (- x 1)) shiftLeftOrDown)))
+
+; Strip out unneeded #'s for shortest path
+(define (stripUnneeded m)
+  (define min (matrix-min m))
+  
+  (log "Minimum moves to goal: " min)
+
+  (define processVector (matrix->vector m))
+
+  (for ([i (vector-length processVector)])
+    (if (equal? (vector-ref processVector i) min)
+        null
+        (vector-set! processVector i 0)))
+
+  (vector->matrix 8 8 processVector))
+
+; Get minimum value in matrix besides 0
+(define (matrix-min m)
+  (define min 200)
+  (for ([i 8])
+    (for ([j 8])
+      (if (and (< (matrix-ref m i j) min) (> (matrix-ref m i j) 0))
+          (set! min (matrix-ref m i j))
+          null)))
+  min)
+
+; Convert a 15x15 matrix into a 8x8 matrix
+(define (shrinkToBoard m)
+  (matrix [[(matrix-ref m 7 0) (matrix-ref m 7 1) (matrix-ref m 7 2) (matrix-ref m 7 3) (matrix-ref m 7 4) (matrix-ref m 7 5) (matrix-ref m 7 6) (matrix-ref m 7 7)]
+           [(matrix-ref m 8 0) (matrix-ref m 8 1) (matrix-ref m 8 2) (matrix-ref m 8 3) (matrix-ref m 8 4) (matrix-ref m 8 5) (matrix-ref m 8 6) (matrix-ref m 8 7)]
+           [(matrix-ref m 9 0) (matrix-ref m 9 1) (matrix-ref m 9 2) (matrix-ref m 9 3) (matrix-ref m 9 4) (matrix-ref m 9 5) (matrix-ref m 9 6) (matrix-ref m 9 7)]
+           [(matrix-ref m 10 0) (matrix-ref m 10 1) (matrix-ref m 10 2) (matrix-ref m 10 3) (matrix-ref m 10 4) (matrix-ref m 10 5) (matrix-ref m 10 6) (matrix-ref m 10 7)]
+           [(matrix-ref m 11 0) (matrix-ref m 11 1) (matrix-ref m 11 2) (matrix-ref m 11 3) (matrix-ref m 11 4) (matrix-ref m 11 5) (matrix-ref m 11 6) (matrix-ref m 11 7)]
+           [(matrix-ref m 12 0) (matrix-ref m 12 1) (matrix-ref m 12 2) (matrix-ref m 12 3) (matrix-ref m 12 4) (matrix-ref m 12 5) (matrix-ref m 12 6) (matrix-ref m 12 7)]
+           [(matrix-ref m 13 0) (matrix-ref m 13 1) (matrix-ref m 13 2) (matrix-ref m 13 3) (matrix-ref m 13 4) (matrix-ref m 13 5) (matrix-ref m 13 6) (matrix-ref m 13 7)]
+           [(matrix-ref m 14 0) (matrix-ref m 14 1) (matrix-ref m 14 2) (matrix-ref m 14 3) (matrix-ref m 14 4) (matrix-ref m 14 5) (matrix-ref m 14 6) (matrix-ref m 14 7)]]))
+
+;(printMatrix 8 8 (getShortestTrajectory 1 8 8 6 0))
+;(printMatrix 8 8 (stripUnneeded (getShortestTrajectory 1 8 8 8 0)))
