@@ -3,7 +3,9 @@
 (require math/matrix
          racket/fixnum
          "moves.rkt"
-         "logging.rkt")
+         "logging.rkt"
+         "bitboard-utils.rkt"
+         "matrix-utils.rkt")
 
 (provide PAWN ROOK KNIGHT BISHOP QUEEN KING getName getValue getMoves)
 
@@ -33,11 +35,21 @@
     [(5) 255]
     [else "FAIL"]))
 
+(define (generate-move-tree startBoard goalBoard pieceType)
+
+  (define pile (get-shortest-trajectory startBoard goalBoard 0 pieceType))
+
+  (define start (convert-bitboard-to-x-y startBoard))
+
+  
+  
+  '())
+
 (define (get-shortest-trajectory startBoard goalBoard holesBoard pieceType)
   (define start (convert-bitboard-to-x-y startBoard))
-  (logMessage "Start: " (vector-ref start 0) "," (vector-ref start 1))
+  (logMessage "Start: (" (vector-ref start 0) ", " (vector-ref start 1) ")")
   (define goal (convert-bitboard-to-x-y goalBoard))
-  (logMessage "Goal: " (vector-ref goal 0) "," (vector-ref goal 1))
+  (logMessage "Goal:  (" (vector-ref goal 0) ", " (vector-ref goal 1) ")")
   
   (getShortestTrajectory (vector-ref start 0) (vector-ref start 1) (vector-ref goal 0) (vector-ref goal 1) holesBoard pieceType))
 
@@ -47,7 +59,7 @@
   (define goalOffsetX (- goalX 8))
   (define goalOffsetY (- goalY 8))
 
-  ; TEMPORARY: define the piece we're looking at
+  ; define the piece we're looking at
   (define pieceMoves (case pieceType
                        [(0) pawnMovesNorth]
                        [(1) rookMoves]
@@ -59,27 +71,24 @@
   ; Create the shifted start matrix
   (define startMatrix
     (if (> startOffsetY 0)
-        (shiftMatrixUp (if (> startOffsetX 0)
-                           (shiftMatrixRight pieceMoves startOffsetX)
-                           (shiftMatrixLeft pieceMoves (- 0 startOffsetX))) startOffsetY)
-        (shiftMatrixDown (if (> startOffsetX 0)
-                             (shiftMatrixRight pieceMoves startOffsetX)
-                             (shiftMatrixLeft pieceMoves (- 0 startOffsetX))) (- 0 startOffsetY))))
+        (shift-matrix-up (if (> startOffsetX 0)
+                           (shift-matrix-right pieceMoves startOffsetX)
+                           (shift-matrix-left pieceMoves (- 0 startOffsetX))) startOffsetY)
+        (shift-matrix-down (if (> startOffsetX 0)
+                             (shift-matrix-right pieceMoves startOffsetX)
+                             (shift-matrix-left pieceMoves (- 0 startOffsetX))) (- 0 startOffsetY))))
 
   ; Create the shifted goal matrix
   (define goalMatrix
     (if (> goalOffsetY 0)
-        (shiftMatrixUp (if (> goalOffsetX 0)
-                           (shiftMatrixRight pieceMoves goalOffsetX)
-                           (shiftMatrixLeft pieceMoves (- 0 goalOffsetX))) goalOffsetY)
-        (shiftMatrixDown (if (> startOffsetX 0)
-                             (shiftMatrixRight pieceMoves goalOffsetX)
-                             (shiftMatrixLeft pieceMoves (- 0 goalOffsetX))) (- 0 goalOffsetY))))
+        (shift-matrix-up (if (> goalOffsetX 0)
+                           (shift-matrix-right pieceMoves goalOffsetX)
+                           (shift-matrix-left pieceMoves (- 0 goalOffsetX))) goalOffsetY)
+        (shift-matrix-down (if (> startOffsetX 0)
+                             (shift-matrix-right pieceMoves goalOffsetX)
+                             (shift-matrix-left pieceMoves (- 0 goalOffsetX))) (- 0 goalOffsetY))))
 
-  ;(printMatrix 8 8 startMatrix)
-  ;(printMatrix 8 8 goalMatrix)
-
-  (shrinkToBoard (matrix+ startMatrix goalMatrix)))
+  (shrink-to-board (matrix+ startMatrix goalMatrix)))
 
 (define (getMoves piece)
   (case piece
@@ -93,4 +102,4 @@
 
 ;(printMatrix 8 8 (getShortestTrajectory 1 8 8 6 0))
 ;(printMatrix 8 8 (stripUnneeded (getShortestTrajectory 1 8 8 8 0)))
-(printMatrix 8 8 (stripUnneeded (get-shortest-trajectory 128 1 0 KING)))
+(printMatrix 8 8 (strip-unneeded (get-shortest-trajectory 128 1 0 KING)))

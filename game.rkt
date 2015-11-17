@@ -1,6 +1,7 @@
 #lang racket
 
-(require "board.rkt")
+(require "board.rkt"
+         "pieces.rkt")
 
 (provide game%)
 
@@ -14,6 +15,27 @@
         [else (init-default)]))
 
     (define board (new board%))
+
+    ;(define/public (generate-moves)
+
+      ; TEMPORARY: Get the move bundle for the white king
+      ;(define move-bundle
+        ;(convert-matrix-to-bitboard
+         ;(get-shortest-trajectory
+          ;(send board get-bit-board white-king)
+          ;(send board get-bit-board black-pawn) 0 KING)))
+
+      ; Create the first move
+      ;(define first-move-cloud
+        ;(if (> startOffsetY 0)
+            ;(shift-matrix-up (if (> startOffsetX 0)
+                                 ;(shift-matrix-right pieceMoves startOffsetX)
+                                 ;(shift-matrix-left pieceMoves (- 0 startOffsetX))) startOffsetY)
+            ;(shift-matrix-down (if (> startOffsetX 0)
+                                   ;(shift-matrix-right pieceMoves startOffsetX)
+                                   ;(shift-matrix-left pieceMoves (- 0 startOffsetX))) (- 0 startOffsetY))))
+      
+      ;elipse-matrix)
 
     (define (init-r-reti-endgame)
       (send board set-bit-board white-pawn #b0000000000000000000001000000000000000000000000000000000000000000)

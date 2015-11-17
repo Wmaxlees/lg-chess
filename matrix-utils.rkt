@@ -1,6 +1,7 @@
 #lang racket
 
-(require math/matrix)
+(require math/matrix
+         "logging.rkt")
 
 (provide shift-matrix-up
          shift-matrix-down
@@ -52,29 +53,29 @@
 (define (shift-matrix-up m x)
   (if (equal? x 0)
       m
-      (matrix* shiftRightOrUp (shiftMatrixUp m (- x 1)))))
+      (matrix* shiftRightOrUp (shift-matrix-up m (- x 1)))))
 
 ; Shift the matrix down x rows
 (define (shift-matrix-down m x)
   (if (equal? x 0)
       m
-      (matrix* shiftLeftOrDown (shiftMatrixDown m (- x 1)))))
+      (matrix* shiftLeftOrDown (shift-matrix-down m (- x 1)))))
 
 ; Shift the matrix right x columns
 (define (shift-matrix-right m x)
   (if (equal? x 0)
       m
-      (matrix* (shiftMatrixRight m (- x 1)) shiftRightOrUp)))
+      (matrix* (shift-matrix-right m (- x 1)) shiftRightOrUp)))
 
 ; Shift the matrix left x columns
 (define (shift-matrix-left m x)
   (if (equal? x 0)
       m
-      (matrix* (shiftMatrixLeft m (- x 1)) shiftLeftOrDown)))
+      (matrix* (shift-matrix-left m (- x 1)) shiftLeftOrDown)))
 
 ; Strip out unneeded #'s for shortest path
 (define (strip-unneeded m)
-  (define min (matrix-min m))
+  (define min (calculate-matrix-min m))
   
   (logMessage "Minimum moves to goal: " min)
 

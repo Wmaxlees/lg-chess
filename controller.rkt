@@ -10,11 +10,13 @@
   (class object%
     (init)
 
+    ; GUI member
     (define gui (new gui%
                      [width-in-chars 500]
                      [height-in-chars 500]
                      [board (new board%)]))
-    
+
+    ; Game mode
     (define game (new game%
                       [gametype "RRetiEndgame"]))
 

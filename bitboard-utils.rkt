@@ -1,6 +1,7 @@
 #lang racket
 
-(require math/matrix)
+(require math/matrix
+         racket/fixnum)
 
 (provide convert-matrix-to-bitboard
          convert-bitboard-to-x-y)
